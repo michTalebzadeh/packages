@@ -3,7 +3,7 @@ import pyspark
 from pyspark.sql import SparkSession
 from pyspark import SparkContext
 from pyspark.sql import SQLContext, HiveContext
-from src.config import config, oracle_url
+from src.config import config, hive_url, oracle_url
 
 #import findspark
 #findspark.init()
@@ -109,9 +109,8 @@ def loadTableintoBQSimba(spark,tableName):
         sys.exit(1)
 
 def loadTableFromHiveJDBC(spark,tableName):
-    hive_url = "jdbc:hive2://"+config['hiveVariables']['hiveHost']+':'+config['hiveVariables']['hivePort']+'/default'
     try:
-        house_df = spark.read. \
+       house_df = spark.read. \
             format("jdbc"). \
             option("url", hive_url). \
             option("dbtable", tableName). \
@@ -120,18 +119,16 @@ def loadTableFromHiveJDBC(spark,tableName):
             option("driver", config['hiveVariables']['hive_driver']). \
             option("fetchsize", config['hiveVariables']['fetchsize']). \
             load()
-        return house_df
+       return house_df
     except Exception as e:
         print(f"""{e}, quitting""")
         sys.exit(1)
         
 def loadTableFromOracleJDBC(spark,tableName):
-    #oracle_url = "jdbc:oracle:thin:@"+config['OracleVariables']['oracleHost']+":"+config['OracleVariables']['oraclePort']+":"+config['OracleVariables']['oracleDB']
-    print(config['OracleVariables']['url'])
     try:
         house_df = spark.read. \
             format("jdbc"). \
-            option("url", config['OracleVariables']['url']). \
+            option("url", oracle_url). \
             option("dbtable", tableName). \
             option("user", config['OracleVariables']['oracle_user']). \
             option("password", config['OracleVariables']['oracle_password']). \
