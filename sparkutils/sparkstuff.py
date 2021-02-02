@@ -47,7 +47,6 @@ def setSparkConfHive(spark):
         spark.conf.set("hive.metastore.disallow.incompatible.col.type.changes", "false")
         spark.conf.set("set hive.resultset.use.unique.column.names", "false")
         spark.conf.set("hive.metastore.uris", "thrift://rhes75:9083")
-        #spark.conf.set("spark.eventLog.dir", "hdfs://rhes75:9000/eventLogging")
         return spark
     except Exception as e:
         print(f"""{e}, quitting""")
@@ -63,7 +62,6 @@ def setSparkConfBQ(spark):
         spark.conf.set("fs.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem")
         spark.conf.set("fs.AbstractFileSystem.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS")
         spark.conf.set("temporaryGcsBucket", config['GCPVariables']['tmp_bucket'])
-        #spark.conf.set("spark.eventLog.dir", "hdfs://rhes75:9000/eventLogging")
         return spark
     except Exception as e:
         print(f"""{e}, quitting""")
