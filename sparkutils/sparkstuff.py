@@ -1,4 +1,4 @@
-Aimport sys
+import sys
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark import SparkContext
