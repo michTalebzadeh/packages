@@ -1,5 +1,5 @@
 from misc import usedFunctions as uf
-import conf.parameters as v
+import configs.parameters as v
 from sparkutils import sparkstuff as s
 from pyspark.sql import functions as F
 from pyspark.sql.functions import col, round
