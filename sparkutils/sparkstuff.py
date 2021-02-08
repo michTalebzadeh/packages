@@ -3,7 +3,7 @@ import pyspark
 from pyspark.sql import SparkSession
 from pyspark import SparkContext
 from pyspark.sql import SQLContext, HiveContext
-from src.config import config, hive_url, oracle_url
+from src.config import config, hive_url, oracle_url, mysql_url
 
 #import findspark
 #findspark.init()
@@ -150,6 +150,22 @@ def writeTableToOracle(dataFrame,mode,dataset,tableName):
             option("user", config['OracleVariables']['oracle_user']). \
             option("password", config['OracleVariables']['oracle_password']). \
             option("driver", config['OracleVariables']['oracle_driver']). \
+            mode(mode). \
+            save()
+    except Exception as e:
+        print(f"""{e}, quitting""")
+        sys.exit(1)
+        
+def writeTableToMysql(dataFrame,mode,dataset,tableName):
+    try:
+        dataFrame. \
+            write. \
+            format("jdbc"). \
+            option("url", mysql_url). \
+            option("dbtable", tableName). \
+            option("user", config['MysqlVariables']['Mysql_user']). \
+            option("password", config['MysqlVariables']['Mysql_password']). \
+            option("driver", config['MysqlVariables']['Mysql_driver']). \
             mode(mode). \
             save()
     except Exception as e:
