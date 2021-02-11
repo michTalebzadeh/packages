@@ -3,10 +3,7 @@ import pyspark
 from pyspark.sql import SparkSession
 from pyspark import SparkContext
 from pyspark.sql import SQLContext, HiveContext
-from src.config import config, hive_url, oracle_url, mysql_url
-
-#import findspark
-#findspark.init()
+from src.config import config
 
 def spark_session(appName):
   return SparkSession.builder \
@@ -92,80 +89,33 @@ def writeTableToBQ(dataFrame,mode,dataset,tableName):
         print(f"""{e}, quitting""")
         sys.exit(1)
 
-def loadTableintoBQSimba(spark,tableName):
-    sc = pyspark.SparkContext
-    sc._jvm.com.metglobal.oss.spark.jdbc.BigQueryRegister.register()
-    connectionURL="jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectId=axial-glow-224522;OAuthType=0;Dataset=ds;OAuthServiceAcctEmail=serviceaccount@axial-glow-224522.iam.gserviceaccount.com;OAuthPvtKeyPath=/home/hduser/GCPFirstProject-d75f1b3a9817.json;Timeout=30;"
-    try:
-        house_df = spark.read. \
-            format("jdbc"). \
-            option("driver", "com.simba.googlebigquery.jdbc42.Driver"). \
-            option("url", connectionURL). \
-            option("dbtable", tableName). \
-            load()
-        return house_df
-    except Exception as e:
-        print(f"""{e}, quitting""")
-        sys.exit(1)
-
-def loadTableFromHiveJDBC(spark,tableName):
+def loadTableFromJDBC(spark, url, tableName, user, password, driver, fetchsize):
     try:
        house_df = spark.read. \
             format("jdbc"). \
-            option("url", hive_url). \
+            option("url", url). \
             option("dbtable", tableName). \
-            option("user", config['hiveVariables']['hive_user']). \
-            option("password", config['hiveVariables']['hive_password']). \
-            option("driver", config['hiveVariables']['hive_driver']). \
-            option("fetchsize", config['hiveVariables']['fetchsize']). \
+            option("user", user). \
+            option("password", password). \
+            option("driver", driver). \
+            option("fetchsize", fetchsize). \
             load()
        return house_df
     except Exception as e:
         print(f"""{e}, quitting""")
         sys.exit(1)
-        
-def loadTableFromOracleJDBC(spark,tableName):
-    try:
-        house_df = spark.read. \
-            format("jdbc"). \
-            option("url", oracle_url). \
-            option("dbtable", tableName). \
-            option("user", config['OracleVariables']['oracle_user']). \
-            option("password", config['OracleVariables']['oracle_password']). \
-            option("driver", config['OracleVariables']['oracle_driver']). \
-            option("fetchsize", config['OracleVariables']['fetchsize']). \
-            load()
-        return house_df
-    except Exception as e:
-        print(f"""{e}, quitting""")
-        sys.exit(1)
 
-def writeTableToOracle(dataFrame,mode,dataset,tableName):
+
+def writeTableWithJDBC(dataFrame, url, tableName, user, password, driver, mode):
     try:
         dataFrame. \
             write. \
             format("jdbc"). \
-            option("url", oracle_url). \
+            option("url", url). \
             option("dbtable", tableName). \
-            option("user", config['OracleVariables']['oracle_user']). \
-            option("password", config['OracleVariables']['oracle_password']). \
-            option("driver", config['OracleVariables']['oracle_driver']). \
-            mode(mode). \
-            save()
-    except Exception as e:
-        print(f"""{e}, quitting""")
-        sys.exit(1)
-        
-def writeTableToMysql(dataFrame,mode,dataset,tableName):
-    try:
-        dataFrame. \
-            write. \
-            format("jdbc"). \
-            option("url", mysql_url). \
-            option("dbtable", tableName). \
-            option("user", config['MysqlVariables']['Mysql_user']). \
-            option("password", config['MysqlVariables']['Mysql_password']). \
-            option("driver", config['MysqlVariables']['Mysql_driver']). \
+            option("user", user). \
+            option("password", password). \
+            option("driver", driver). \
             mode(mode). \
             save()
     except Exception as e:
